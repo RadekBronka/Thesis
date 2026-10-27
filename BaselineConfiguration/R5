@@ -6,13 +6,9 @@ exit
 router bgp 65100
  bgp router-id 192.168.5.1
  no bgp ebgp-requires-policy
- no bgp default ipv4-unicast
+ network 192.168.5.0/24
  neighbor 10.2.5.2 remote-as 65200
  neighbor 10.2.5.2 description PROVIDER_R2_via_ens3
- address-family ipv4 unicast
-  network 192.168.5.0/24
-  neighbor 10.2.5.2 activate
- exit-address-family
 exit
 end
 write memory

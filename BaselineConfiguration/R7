@@ -1,0 +1,21 @@
+configure terminal
+hostname R7
+interface lo
+ ip address 192.168.7.1/24
+exit
+router bgp 65102
+ bgp router-id 192.168.7.1
+ no bgp ebgp-requires-policy
+ no bgp default ipv4-unicast
+ neighbor 10.3.7.3 remote-as 6500
+ neighbor 10.3.7.3 description PROVIDER_R3_via_ens3
+ neighbor 10.4.7.4 remote-as 65201
+ neighbor 10.4.7.4 description PROVIDER_R4_via_ens4
+ address-family ipv4 unicast
+  network 192.168.7.0/24
+  neighbor 10.3.7.3 activate
+  neighbor 10.4.7.4 activate
+ exit-address-family
+exit
+end
+write memory

@@ -1,0 +1,36 @@
+configure terminal
+hostname R2
+interface lo
+ ip address 192.168.2.1/24
+exit
+route-map RM-FROM-CUSTOMER permit 10
+ set local-preference 200
+exit
+route-map RM-FROM-PEER permit 10
+ set local-preference 150
+exit
+route-map RM-FROM-PROVIDER permit 10
+ set local-preference 100
+exit
+router bgp 65200
+ bgp router-id 192.168.2.1
+ no bgp ebgp-requires-policy
+ no bgp default ipv4-unicast
+ neighbor 10.1.2.1 remote-as 64501
+ neighbor 10.1.2.1 description UPSTREAM_R1_via_ens3
+ neighbor 10.2.3.3 remote-as 6500
+ neighbor 10.2.3.3 description PEER_R3_via_ens4
+ neighbor 10.2.5.5 remote-as 65100
+ neighbor 10.2.5.5 description CUSTOMER_R5_via_ens5
+ address-family ipv4 unicast
+  network 192.168.2.0/24
+  neighbor 10.1.2.1 activate
+  neighbor 10.2.3.3 activate
+  neighbor 10.2.5.5 activate
+  neighbor 10.1.2.1 route-map RM-FROM-PROVIDER in
+  neighbor 10.2.3.3 route-map RM-FROM-PEER in
+  neighbor 10.2.5.5 route-map RM-FROM-CUSTOMER in
+ exit-address-family
+exit
+end
+write memory

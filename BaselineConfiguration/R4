@@ -22,9 +22,6 @@ router bgp 65201
  neighbor 10.1.4.1 remote-as 64501
  neighbor 10.1.4.1 description UPSTREAM_R1_via_ens4
  neighbor 10.1.4.1 route-map RM-FROM-PROVIDER in
- neighbor 10.4.7.7 remote-as 65102
- neighbor 10.4.7.7 description CUSTOMER_R7_via_ens5
- neighbor 10.4.7.7 route-map RM-FROM-CUSTOMER in
 exit
 end
 write memory

@@ -16,7 +16,7 @@ router bgp 65201
  bgp router-id 192.168.4.1
  no bgp ebgp-requires-policy
  network 192.168.4.0/24
- neighbor 10.3.4.3 remote-as 6500
+ neighbor 10.3.4.3 remote-as 65000
  neighbor 10.3.4.3 description PEER_R3_via_ens3
  neighbor 10.3.4.3 route-map RM-FROM-PEER in
  neighbor 10.1.4.1 remote-as 64501

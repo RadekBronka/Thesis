@@ -1,0 +1,14 @@
+configure terminal
+ip prefix-list PL-R4-EXPORT permit 192.168.4.0/24
+ip prefix-list PL-R4-EXPORT permit 192.168.7.0/24
+route-map RM-EXPORT permit 10
+ match ip address prefix-list PL-R4-EXPORT
+exit
+router bgp 65201
+ neighbor 10.4.7.7 remote-as 65102
+ neighbor 10.4.7.7 description CUSTOMER_R7_via_ens5
+ neighbor 10.4.7.7 route-map RM-FROM-CUSTOMER in
+ neighbor 10.4.7.7 route-map RM-EXPORT out
+exit
+end
+write memory

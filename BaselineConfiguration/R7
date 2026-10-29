@@ -9,8 +9,6 @@ router bgp 65102
  network 192.168.7.0/24
  neighbor 10.3.7.3 remote-as 6500
  neighbor 10.3.7.3 description PROVIDER_R3_via_ens3
- neighbor 10.4.7.4 remote-as 65201
- neighbor 10.4.7.4 description PROVIDER_R4_via_ens4
 exit
 end
 write memory

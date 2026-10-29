@@ -32,5 +32,16 @@ router bgp 6500
  neighbor 10.3.6.6 description CUSTOMER_R6_via_ens7
  neighbor 10.3.6.6 route-map RM-FROM-CUSTOMER in
 exit
+ip prefix-list PL-EXPORT permit 192.168.3.0/24
+ip prefix-list PL-EXPORT permit 192.168.6.0/24
+ip prefix-list PL-EXPORT permit 192.168.7.0/24
+route-map RM-EXPORT permit 10
+ match ip address prefix-list PL-EXPORT
+exit
+router bgp 6500
+ neighbor 10.1.3.1 route-map RM-EXPORT out
+ neighbor 10.2.3.2 route-map RM-EXPORT out
+ neighbor 10.3.4.4 route-map RM-EXPORT out
+exit
 end
 write memory

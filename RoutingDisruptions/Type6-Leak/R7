@@ -7,6 +7,9 @@ exit
 ip route 192.168.2.0/25 10.3.7.3
 
 ip prefix-list PL-EXPORT permit 192.168.2.0/25
+route-map RM-EXPORT permit 10
+ match ip address prefix-list PL-EXPORT
+exit
 
 router bgp 65102
  network 192.168.2.0/25

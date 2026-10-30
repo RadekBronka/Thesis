@@ -1,0 +1,8 @@
+configure terminal
+router bgp 65201
+ neighbor 10.4.7.7 remote-as 65102
+ neighbor 10.4.7.7 description CUSTOMER_R7_via_ens5
+ neighbor 10.4.7.7 route-map RM-FROM-CUSTOMER in
+exit
+end
+write memory

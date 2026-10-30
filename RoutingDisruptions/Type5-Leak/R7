@@ -1,0 +1,11 @@
+configure terminal
+router bgp 65102
+ neighbor 10.4.7.4 remote-as 65201
+ neighbor 10.4.7.4 description UPSTREAM_R4_via_ens4
+exit
+ip route 192.168.2.0/24 10.3.7.3
+router bgp 65102
+ redistribute static
+exit
+end
+write memory

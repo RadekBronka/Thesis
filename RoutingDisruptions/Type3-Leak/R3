@@ -1,6 +1,4 @@
-vtysh
 configure terminal
 ip prefix-list PL-EXPORT permit 192.168.1.0/24
 end
 write memory
-clear ip bgp * soft

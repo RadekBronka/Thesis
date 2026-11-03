@@ -1,1 +1,30 @@
+configure terminal
 
+ip route 192.168.4.0/25 10.4.7.4
+
+router bgp 65102
+ neighbor 10.4.7.4 remote-as 65201
+ neighbor 10.4.7.4 description UPSTREAM_R4_via_ens4
+exit
+
+ip prefix-list PL-DENY-TO-R4 deny 192.168.4.0/25
+ip prefix-list PL-DENY-TO-R4 permit 0.0.0.0/0 le 32
+
+route-map RM-TO-R4 permit 10
+ match ip address prefix-list PL-DENY-TO-R4
+exit
+
+ip prefix-list PL-TO-R3 permit 192.168.4.0/25
+ip prefix-list PL-TO-R3 permit 192.168.7.0/24
+
+route-map RM-TO-R3 permit 10
+ match ip address prefix-list PL-TO-R3
+exit
+
+router bgp 65102
+ neighbor 10.4.7.4 route-map RM-TO-R4 out
+ neighbor 10.3.7.3 route-map RM-TO-R3 out
+ network 192.168.4.0/25
+exit
+end
+write memory

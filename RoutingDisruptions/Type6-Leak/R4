@@ -1,0 +1,10 @@
+configure terminal
+no ip prefix-list PL-EXPORT permit 192.168.4.0/24
+ip prefix-list PL-EXPORT permit 192.168.4.0/24 le 25
+
+ip route 192.168.4.128/25 Null0
+router bgp 65201
+ network 192.168.4.128/25
+exit
+end
+write memory

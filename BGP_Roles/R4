@@ -1,0 +1,12 @@
+configure terminal
+ip prefix-list PL-EXPORT permit 192.168.7.0/24
+router bgp 65201
+ neighbor 10.1.4.1 local-role customer
+ neighbor 10.3.4.3 local-role peer
+ neighbor 10.4.7.7 remote-as 65102
+ neighbor 10.4.7.7 description CUSTOMER_R7_via_ens5
+ neighbor 10.4.7.7 route-map RM-FROM-CUSTOMER in
+ neighbor 10.4.7.7 local-role provider
+exit
+end
+write memory

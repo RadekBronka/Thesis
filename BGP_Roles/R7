@@ -1,0 +1,9 @@
+configure terminal
+router bgp 65102
+ neighbor 10.3.7.3 local-role customer
+ neighbor 10.4.7.4 remote-as 65201
+ neighbor 10.4.7.4 description PROVIDER_R4_via_ens4
+ neighbor 10.4.7.4 local-role customer
+exit
+end
+write memory

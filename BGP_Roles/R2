@@ -1,0 +1,8 @@
+configure terminal
+router bgp 65200
+ neighbor 10.1.2.1 local-role customer
+ neighbor 10.2.3.3 local-role peer
+ neighbor 10.2.5.5 local-role provider
+exit
+end
+write memory

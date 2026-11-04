@@ -4,3 +4,4 @@ router bgp 65101
 exit
 end
 write memory
+clear ip bgp *

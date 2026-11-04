@@ -8,3 +8,4 @@ router bgp 65000
 exit
 end
 write memory
+clear ip bgp *

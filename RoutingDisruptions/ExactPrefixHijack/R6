@@ -1,0 +1,7 @@
+configure terminal
+ip route 192.168.4.0/24 Null0
+router bgp 65101
+ network 192.168.4.0/24
+exit
+end
+write memory

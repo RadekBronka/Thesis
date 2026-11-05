@@ -2,6 +2,10 @@ configure terminal
 
 interface lo
  ip address 192.168.7.1/28
+ ip address 192.168.7.16/28
+ ip address 192.168.7.32/28
+ ip address 192.168.7.48/28
+ ip address 192.168.7.64/27
 exit
 
 

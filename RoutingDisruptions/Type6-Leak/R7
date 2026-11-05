@@ -1,13 +1,28 @@
 configure terminal
+
 interface lo
- ip address 172.16.7.1/24
- ip address 192.168.7.129/25
+ ip address 192.168.7.1/28
+exit
+
+
+ip prefix-list PL-R7-NET seq 5 permit 192.168.7.0/24
+
+route-map RM-TO-R3-PREPEND permit 10
+ match ip address prefix-list PL-R7-NET
+ set as-path prepend 65102 65102 65102
+exit
+route-map RM-TO-R3-PREPEND permit 20
 exit
 
 router bgp 65102
- address-family ipv4 unicast
-  redistribute connected
- exit-address-family
+ bgp router-id 192.168.7.1
+ no bgp ebgp-requires-policy
+ network 192.168.7.0/24
+ redistribute connected
+ 
+ neighbor 10.3.7.3 route-map RM-TO-R3-PREPEND out
+ neighbor 10.4.7.4 remote-as 65201
+ neighbor 10.4.7.4 description PROVIDER_R4_via_ens5
 exit
 end
 write memory

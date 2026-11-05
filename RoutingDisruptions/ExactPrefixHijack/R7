@@ -1,0 +1,13 @@
+configure terminal
+ip prefix-list PL-R7-NET permit 192.168.7.0/24
+route-map RM-TO-R3-PREPEND permit 10
+ match ip address prefix-list PL-R7-NET
+ set as-path prepend 65102
+exit
+route-map RM-TO-R3-PREPEND permit 20
+exit
+router bgp 65102
+ neighbor 10.3.7.3 route-map RM-TO-R3-PREPEND out
+exit
+end
+write memory

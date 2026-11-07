@@ -1,0 +1,22 @@
+configure terminal
+interface ens7
+ ip address 10.99.99.4/24
+ no shutdown
+exit
+rpki
+ rpki polling_period 10
+ rpki cache tcp 10.99.99.100 3323 preference 1
+ rpki cache 10.99.99.100 3323 preference 1
+exit
+route-map RM-FROM-CUSTOMER deny 5
+ match rpki invalid
+exit
+route-map RM-FROM-PEER deny 5
+ match rpki invalid
+exit
+route-map RM-FROM-PROVIDER deny 5
+ match rpki invalid
+exit
+end
+write memory
+clear ip bgp * soft in

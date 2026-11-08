@@ -1,12 +1,12 @@
 configure terminal
 route-map RM-FROM-CUSTOMER deny 6
- match rpki aspa invalid
+ match aspa upstream invalid
 exit
 route-map RM-FROM-PEER deny 6
- match rpki aspa invalid
+ match aspa upstream invalid
 exit
 route-map RM-FROM-PROVIDER deny 6
- match rpki aspa invalid
+ match aspa downstream invalid
 exit
 end
 write memory

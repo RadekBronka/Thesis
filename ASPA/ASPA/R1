@@ -1,7 +1,8 @@
 configure terminal
-route-map RM-FROM-CUSTOMER deny 6
+
+route-map RM-RPKI-IN deny 6
  match aspa upstream invalid
 exit
+
 end
 write memory
-clear ip bgp * soft in

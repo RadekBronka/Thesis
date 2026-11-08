@@ -1,0 +1,79 @@
+configure terminal
+
+! ==========================================
+! 1. Bogony – prefiksy, których nie przyjmujemy
+! ==========================================
+
+ip prefix-list PL-BOGONS seq 5 permit 0.0.0.0/8 le 32
+ip prefix-list PL-BOGONS seq 10 permit 10.0.0.0/8 le 32
+ip prefix-list PL-BOGONS seq 15 permit 127.0.0.0/8 le 32
+ip prefix-list PL-BOGONS seq 20 permit 169.254.0.0/16 le 32
+ip prefix-list PL-BOGONS seq 25 permit 255.255.255.255/32
+
+! ==========================================
+! 2. Prefiksy IPv4 dłuższe niż /24
+! ==========================================
+
+ip prefix-list PL-TOO-SPECIFIC seq 5 permit 0.0.0.0/0 ge 25 le 32
+
+! ==========================================
+! 3. Prefiksy dozwolone od poszczególnych klientów
+! ==========================================
+
+ip prefix-list PL-R6-ALLOWED seq 5 permit 192.168.6.0/24
+
+ip prefix-list PL-R7-ALLOWED seq 5 permit 192.168.7.0/24
+
+! ==========================================
+! 4. Polityka wejściowa od R6
+! ==========================================
+
+route-map RM-FROM-R6 deny 5
+ match ip address prefix-list PL-BOGONS
+exit
+
+route-map RM-FROM-R6 deny 10
+ match ip address prefix-list PL-TOO-SPECIFIC
+exit
+
+route-map RM-FROM-R6 permit 20
+ match ip address prefix-list PL-R6-ALLOWED
+ set local-preference 200
+exit
+
+! ==========================================
+! 5. Polityka wejściowa od R7
+! ==========================================
+
+route-map RM-FROM-R7 deny 5
+ match ip address prefix-list PL-BOGONS
+exit
+
+route-map RM-FROM-R7 deny 10
+ match ip address prefix-list PL-TOO-SPECIFIC
+exit
+
+route-map RM-FROM-R7 permit 20
+ match ip address prefix-list PL-R7-ALLOWED
+ set local-preference 200
+exit
+
+! ==========================================
+! 6. Przypisanie polityk do sąsiadów BGP
+! ==========================================
+
+router bgp 65000
+
+ no neighbor 10.3.6.6 route-map RM-FROM-CUSTOMER in
+ no neighbor 10.3.7.7 route-map RM-FROM-CUSTOMER in
+
+ neighbor 10.3.6.6 soft-reconfiguration inbound
+ neighbor 10.3.7.7 soft-reconfiguration inbound
+
+ neighbor 10.3.6.6 route-map RM-FROM-R6 in
+ neighbor 10.3.7.7 route-map RM-FROM-R7 in
+
+exit
+
+end
+write memory

@@ -1,0 +1,8 @@
+configure terminal
+router bgp 65102
+ no neighbor 10.3.7.3 local-role customer
+ no neighbor 10.4.7.4 local-role customer
+exit
+end
+write memory
+clear ip bgp *

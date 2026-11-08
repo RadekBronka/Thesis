@@ -1,6 +1,6 @@
 configure terminal
 route-map RM-FROM-CUSTOMER deny 6
- match aspa upstream
+ match aspa upstream invalid
 exit
 end
 write memory

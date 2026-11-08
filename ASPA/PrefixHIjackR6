@@ -1,0 +1,23 @@
+configure terminal
+
+ip route 192.168.4.0/24 Null0
+
+ip prefix-list PL-FORGED permit 192.168.4.0/24
+
+route-map RM-FORGED-OUT permit 10
+ match ip address prefix-list PL-FORGED
+ set as-path prepend 65201
+exit
+
+route-map RM-FORGED-OUT permit 20
+exit
+
+router bgp 65101
+ address-family ipv4 unicast
+  network 192.168.4.0/24
+  neighbor 10.3.6.3 route-map RM-FORGED-OUT out
+ exit-address-family
+exit
+
+end
+write memory

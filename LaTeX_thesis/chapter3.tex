@@ -5,17 +5,16 @@ Narzędzia użyte w części praktycznej
 
 \section{EVE-NG}
 
-EVE
-
+Jako środowisko, w którym zbudowana została topologia, posłużył emulator EVE-NG Community uruchomiony jako maszyna wirtualna w VMware Workstation PRO. Wybór narzędzia podyktowany był przede wszystkim wydajnością emulacji środowiska sieciowego oraz możliwościami zarządzania stanem i monitorowania ruchu w laboratorium. EVE-NG umożliwia zapis stanu całej topologii i eksport konfiguracji, co pozwala na archiwizację oraz odtwarzanie sieci po przeprowadzeniu scenariusza badawczego. Platforma natywnie współpracuje z oprogramowaniem Wireshark, pozwalając na przesyłanie ruchu z interfejsu wirtualnego rutera do analizatora pakietów. Dostępny interfejs graficzny działający w przeglądarce internetowej i integracja z programem PuTTY usprawnia proces budowy sieci i wdrożenia konfiguracji.
 
 \section{FRRouting}
 
-frr
+FRRouting to otwartoźródłowy pakiet protokołów rutingu przeznaczony dla systemów operacyjnych z rodziny Linux, stanowiący rozwinięcie i kontynuację projektu Quagga. Oprogramowanie oferuje pełną implementację protokołu BGP oraz charakteryzuje się lekką architekturą, co pozwoliło na optymalizację i ograniczenie zasobów obliczeniowych niezbędnych do uruchomienia topologii. Ze względu na zbiór metod opisywanych w pracy wybrana została wersja deweloperska o numerze 10.9.0-dev. Zapewnia ona wsparcie dla protokołu RTRv2, niezbędnego do działania mechanizmu ASPA, którego starsze, stabilne wersje nie posiadają.
 
 \section{Krill}
 
-Krill
+Krill to demon RPKI autorstwa organizacji NLnet Labs, pełniący funkcję urzędu certyfikacji i serwera publikacji. Krill umożliwia uruchomienie środowiska testowego i odizolowanie go od zewnętrznych rejestrów kontrolowanych przez RIR oraz natywnie wspiera tworzenie obiektów ASPA i zarządzanie nimi, co jest konieczne do przeprowadzenia badań zawartych w pracy. Krill w sposób płynny integruje się także z programem Routinator.
 
 \section{Routinator}
 
-Routiantor
+Routinator jest oprogramowaniem pełniącym rolę serwera weryfikującego, który łączy się z Krill i jest pośrednikiem między ruterami a serwerem publikacji w procesie weryfikacji obiektów ROA i ASPA. Podobnie jak Krill, narzędzie to jest rozwijane przez NLnet Labs i zapewnia z nim pełną kompatybilność, co upraszcza proces uruchomienia infrastruktury RPKI w laboratorium. 

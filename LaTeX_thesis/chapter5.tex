@@ -18,7 +18,7 @@ Do wytworzenia wycieku tras pierwszego typu wykorzystany został ruter R7. Węze
 	\label{fig:type1leak_r3table}
 \end{figure}
 
-Wpis widoczny na \ref{fig:type1leak_r3table} obrazuje decyzje rutingowe po wystąpieniu wycieku. Ruter R3 preferuje wysłanie ruchu kierowanego do sieci 192.168.4.0/24 przez swojego klienta R7, zamiast wykorzystać bezpośrednią ścieżkę do R4.
+Wpis widoczny na rysunku~\ref{fig:type1leak_r3table} obrazuje decyzje rutingowe po wystąpieniu wycieku. Ruter R3 preferuje wysłanie ruchu kierowanego do sieci 192.168.4.0/24 przez swojego klienta R7, zamiast wykorzystać bezpośrednią ścieżkę do R4.
 
 
 \subsection{Type 2 leak}
@@ -32,7 +32,7 @@ Wyciek typu drugiego opiera się na błędnej propagacji trasy pochodzącej od j
 	\label{fig:type2leak_r4table}
 \end{figure}
 
-Rysunek \ref{fig:type2leak_r4table} przedstawia decyzje rutingowe podejmowane przez ruter R4. Błędna trasa posiada atrybut Local Preference równy 150, co przewyższa wartość 100 przypisywaną poprawnej ścieżce. Skutkuje to preferowaniem błędnej trasy w procesie decyzyjnym BGP, czyniąc R3 nieuprawnionym punktem tranzytowym ruchu do tej sieci.
+Rysunek~\ref{fig:type2leak_r4table} przedstawia decyzje rutingowe podejmowane przez ruter R4. Błędna trasa posiada atrybut Local Preference równy 150, co przewyższa wartość 100 przypisywaną poprawnej ścieżce. Skutkuje to preferowaniem błędnej trasy w procesie decyzyjnym BGP, czyniąc R3 nieuprawnionym punktem tranzytowym ruchu do tej sieci.
 
 \subsection{Type 3 leak}
 \label{subsec:type-3-leak}
@@ -57,8 +57,8 @@ W scenariuszu prezentującym wyciek typu trzeciego ruter R3 rozgłasza swoim pee
 	\label{fig:type3leak_r4table}
 \end{figure}
 
-Rysunki \ref{fig:type3leak_r4traceBefore} i \ref{fig:type3leak_r4trace} prezentują przebieg ścieżki pakietów wysyłanych do sieci 192.168.1.0/24 z sieci 192.168.4.0/24 odpowiednio przed i po wystąpieniu wycieku.
-Decyzje rutingowe prowadzące do tej sytuacji pokazuje rysunek \ref{fig:type3leak_r4table}, który zawiera wyciąg z tablicy rutingu BGP rutera R4. Wskazuje on, że trasa otrzymana od węzła R3 uzyskała wyższy priorytet względem trasy rozgłoszonej przez R1.
+Rysunki~\ref{fig:type3leak_r4traceBefore} i~\ref{fig:type3leak_r4trace} prezentują przebieg ścieżki pakietów wysyłanych do sieci 192.168.1.0/24 z sieci 192.168.4.0/24 odpowiednio przed i po wystąpieniu wycieku.
+Decyzje rutingowe prowadzące do tej sytuacji pokazuje rysunek~\ref{fig:type3leak_r4table}, który zawiera wyciąg z tablicy rutingu BGP rutera R4. Wskazuje on, że trasa otrzymana od węzła R3 uzyskała wyższy priorytet względem trasy rozgłoszonej przez R1.
 
 
 \subsection{Type 4 leak}
@@ -90,7 +90,7 @@ Do demonstracji wycieku typu piątego wykorzystany został ruter R7. Ponieważ w
 	\label{fig:type5leak_r4trace}
 \end{figure}
 
-Rysunek \ref{fig:type5leak_r4table} zawiera tablicę rutingu na ruterze R4 po wycieku. Wpis z następnym przeskokiem przez R7 zawiera tylko numer AS 66102, w którym się znajduje, co potwierdza usunięcie oryginalnej ścieżki. W celu pokazania wpływu usunięcia informacji o długości ścieżki na decyzje rutingowe zrównano na R4 wartości Local Preference dla trasy otrzymanej od klienta R7 i operatora nadrzędnego R1. Bez tej modyfikacji ruter R4 preferowałby wysyłanie ruchu przez swojego klienta nawet, jeśli ścieżka zawarta w \texttt{AS\_PATH} byłaby dłuższa od tej otrzymanej od dostawcy. Rysunek\ref{fig:type5leak_r4trace} pokazuje ścieżkę pakietów po wystąpieniu wycieku trasy.
+Rysunek~\ref{fig:type5leak_r4table} zawiera tablicę rutingu na ruterze R4 po wycieku. Wpis z następnym przeskokiem przez R7 zawiera tylko numer AS 66102, w którym się znajduje, co potwierdza usunięcie oryginalnej ścieżki. W celu pokazania wpływu usunięcia informacji o długości ścieżki na decyzje rutingowe zrównano na R4 wartości Local Preference dla trasy otrzymanej od klienta R7 i operatora nadrzędnego R1. Bez tej modyfikacji ruter R4 preferowałby wysyłanie ruchu przez swojego klienta nawet, jeśli ścieżka zawarta w \texttt{AS\_PATH} byłaby dłuższa od tej otrzymanej od dostawcy. Rysunek~\ref{fig:type5leak_r4trace} pokazuje ścieżkę pakietów po wystąpieniu wycieku trasy.
 
 
 
@@ -135,14 +135,70 @@ Wyciek typu szóstego również został wykonany z użyciem rutera R7. Z powodó
 	\label{fig:type6leak_r5trace}
 \end{figure}
 
-Jak zauważyć można na rysunku \ref{fig:type6leak_r3table}, przy wpisie o sieci 192.168.7.0/24 preferowana jest trasa przez R4, zgodnie z zamiarem administratora AS65102. Widoczne są jednak również dokładniejsze wpisy dotyczące podsieci wewnątrz tego systemu. Kiedy otrzyma on pakiet przeznaczony do adresu należącego do jednej z  widocznych podsieci, wybór trasy zależny będzie od reguły najdłuższego dopasowania (ang. \textit{longest-prefix match}). Przykład takiej sytuacji przedstawiono na rysunku \ref{fig:type6leak_r5trace} zawierającym wynik polecenia traceroute wywołanego na ruterze R5. Ponieważ adresem docelowym był 192.168.7.1, router R3 -- dysponując zaprezentowaną tablicą rutingu -- skierował pakiet korzystając z wpisu 192.168.7.0/28, który został błędnie rozgłoszony przez R7. Nieuważna redystrybucja administratora spowodowała wyciek jego wewnętrznej adresacji i wpłynęła na decyzje rutingowe rutera R3.
+Jak zauważyć można na rysunku~\ref{fig:type6leak_r3table}, przy wpisie o sieci 192.168.7.0/24 preferowana jest trasa przez R4, zgodnie z zamiarem administratora AS65102. Widoczne są jednak również dokładniejsze wpisy dotyczące podsieci wewnątrz tego systemu. Kiedy otrzyma on pakiet przeznaczony do adresu należącego do jednej z  widocznych podsieci, wybór trasy zależny będzie od reguły najdłuższego dopasowania (ang. \textit{longest-prefix match}). Przykład takiej sytuacji przedstawiono na rysunku~\ref{fig:type6leak_r5trace} zawierającym wynik polecenia traceroute wywołanego na ruterze R5. Ponieważ adresem docelowym był 192.168.7.1, router R3 -- dysponując zaprezentowaną tablicą rutingu -- skierował pakiet korzystając z wpisu 192.168.7.0/28, który został błędnie rozgłoszony przez R7. Nieuważna redystrybucja administratora spowodowała wyciek jego wewnętrznej adresacji i wpłynęła na decyzje rutingowe rutera R3.
 \section{Prefix Hijack}
 \label{sec:prefix-hijack}
 
-Kradzieze
+Celem tego podrozdziału jest przeprowadzenie i demonstracja czterech rodzajów kradzieży prefiksu
 
 \subsection{Exact Prefix Hijack}
 \label{subsec:exact-prefix-hijack}
+
+Kradzież typu Exact-Prefix polega na rozgłoszeniu przez system autonomiczny prefiksu niebędącego jego własnością bez modyfikacji długości maski. W przypadku tego rodzaju ataku decyzje rutingowe w sieci podejmowane są na podstawie atrybutów tras propagowanych przez protokół BGP. Źródłem ataku w topologii badawczej jest ruter R6 w AS65101, rozgłaszający prefiks należący do AS 65102 w celu przejęcia ruchu skierowanego do sieci 192.168.7.0/24 i wywołania ataku DoS (Denial of Service). Na ruterze utworzona została trasa statyczna kierująca pakiety do wskazanej sieci na interfejs Null0 oraz rozgłoszono prefiks w procesie BGP.
+
+\begin{lstlisting}[caption={Wywołanie ataku DoS dzięki kradzieży prefiksu}, label={lst:exactHijackconfig}]
+	ip route 192.168.7.0/24 Null0
+	router bgp 65101
+		network 192.168.7.0/24
+\end{lstlisting}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R5traceBefore.png}
+	\caption{Polecenie Traceroute wydane na ruterze R5 przed kradzieżą prefiksu}
+	\label{fig:exactHijack_r5traceBefore}
+\end{figure}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R3tableNoPrepend.png}
+	\caption{Wpis w tablicy rutera R3 po przeprowadzeniu kradzieży prefiksu}
+	\label{fig:exactHijack_r3tableNoPrepend}
+\end{figure}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R3routeSelection.png}
+	\caption{Wynik procesu decyzyjnego na ruterze R3}
+	\label{fig:exactHijack_r3routeSelection}
+\end{figure}
+Rysunek~\ref{fig:exactHijack_r3tableNoPrepend} pokazuje stan tablicy rutingu rutera R3 po rozgłoszeniu prefiksu przez R6. Widoczne są dwa wpisy prowadzące do atakowanej sieci: poprawny rozgłoszony przez ruter R7 oraz podszycie się przez R6. Atrybuty dla obu tras są takie same, ale poprawna trasa została rozgłoszona wcześniej, dlatego proces decyzyjny BGP dalej ją preferuje. Decyzje rutera obrazuje rysunek~\ref{fig:exactHijack_r3routeSelection}, natomiast rysunek~\ref{fig:exactHijack_r5traceBefore} przedstawia przebieg ścieżki pakietów przeznaczonych do sieci 192.168.7.0/24 przed udanym atakiem. 
+
+W celu demonstracji udanego ataku założono, że administrator AS 65102 używa techniki \textit{path prepending} aby sterować ruchem wejściowym do swojego systemu autonomicznego. Zastosowana konfiguracja przedstawiona jest na listingu~\ref{lst:exactHijackR7prepend}. Przedstawione komendy wydłużają atrybut \texttt{AS\_PATH} wysyłany do sąsiada R3, aby ruch kierowany był do AS 65102 przez sąsiada R4.
+\begin{lstlisting}[caption={Konfiguracja Path Prepending na ruterze R7}, label={lst:exactHijackR7prepend}]
+	ip prefix-list PL-R7-NET permit 192.168.7.0/24
+	
+	route-map RM-TO-R3-PREPEND permit 10
+		match ip address prefix-list PL-R7-NET
+		set as-path prepend 65102
+	route-map RM-TO-R3-PREPEND permit 20
+	
+	router bgp 65102
+		neighbor 10.3.7.3 route-map RM-TO-R3-PREPEND out
+\end{lstlisting}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R3tablePrepend.png}
+	\caption{Tablica rutera R3 po udanym ataku exact-prefix hijack}
+	\label{fig:exactHijack_r3tablePrepend}
+\end{figure}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R5traceAfter.png}
+	\caption{Polecenie Traceroute wydane na ruterze R5 po udanym ataku exact-prefix hijack}
+	\label{fig:exactHijack_r5traceAfter}
+\end{figure}
+
+Zawarty na rysunku~\ref{fig:exactHijack_r3tablePrepend} fragment tablicy rutingu na ruterze R3 potwierdza sukces ataku. W wyniku próby inżynierii ruchu prawidłowa trasa przegrywa z trasą rozgłoszoną przez R6 w procesie decyzyjnym BGP, doprowadzając do przekierowania ruchu do atakującego i wywołując atak Denial of Service widoczny na rysunku~\ref{fig:exactHijack_r5traceAfter}.
+
+
 
 \subsection{Sub-prefix Hijack}
 \label{subsec:sub-prefix-hijack}

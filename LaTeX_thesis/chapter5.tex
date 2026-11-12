@@ -11,7 +11,7 @@ Wycieki
 \label{subsec:type-1-leak}
 Do wytworzenia wycieku tras pierwszego typu wykorzystany został ruter R7. Węzeł ten połączony jest z dwoma operatorami w architekturze multi-homed, ale nie filtruje prefiksów rozsyłanych do ruterów R3 i R4. W efekcie ogłasza trasy otrzymane od jednego z dostawców do drugiego. Skonfigurowana na obu ruterach operatorów polityka sterowania ruchem, która przypisuje najwyższą wartość atrybutu \texttt{Local Preference} trasom pochodzącym od klientów, sprawia, że AS 65102 staje się dla nich tranzytowym systemem autonomicznym.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type1leak/R3tableSmall.png}
 	\caption{Przykładowy wpis w tablicy rutingu na ruterze R3 podczas wycieku typu 1}
@@ -25,7 +25,7 @@ Wpis widoczny na rysunku~\ref{fig:type1leak_r3table} obrazuje decyzje rutingowe 
 \label{subsec:type-2-leak}
 Wyciek typu drugiego opiera się na błędnej propagacji trasy pochodzącej od jednego peera do drugiego. Do wywołania tego zjawiska użyto rutera R3, którego polityka eksportowa pozwoliła na rozgłoszenie trasy 192.168.2.0/24 do R4. Konfiguracja na R4 nadaje trasie otrzymanej od R3 wyższą wartość atrybutu \texttt{Local Preference} niż trasie do tej samej sieci otrzymanej od swojego dostawcy R1.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type2leak/R4tableSmall.png}
 	\caption{Przykładowy wpis w tablicy rutingu na ruterze R4  po wycieku typu 2}
@@ -38,19 +38,19 @@ Rysunek~\ref{fig:type2leak_r4table} przedstawia decyzje rutingowe podejmowane pr
 \label{subsec:type-3-leak}
 
 W scenariuszu prezentującym wyciek typu trzeciego ruter R3 rozgłasza swoim peerom trasy pochodzące od jego dostawcy nadrzędnego R1. Polityka wejściowa węzłów R2 i R4 przypisuje trasom odbieranym z sesji typu peer wyższą wartość atrybutu \texttt{Local Preference} niż trasom odbieranym od dostawców tranzytu.
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type3leak/R4traceBefore.png}
 	\caption{Polecenie traceroute wydane na ruterze R4 przed wyciekiem typu 3}
 	\label{fig:type3leak_r4traceBefore}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type3leak/R4trace.png}
 	\caption{Polecenie traceroute wydane na ruterze R4 po wycieku typu 3}
 	\label{fig:type3leak_r4trace}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type3leak/R4tableAfterSmall.png}
 	\caption{Przykładowy wpis w tablicy rutingu na ruterze R4 po wycieku typu 3}
@@ -77,13 +77,13 @@ Do demonstracji wycieku typu piątego wykorzystany został ruter R7. Ponieważ w
 		redistribute static
 \end{lstlisting}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type5leak/R4tableSmall.png}
 	\caption{Przykładowy wpis w tablicy rutingu na ruterze R4 po wycieku typu 5}
 	\label{fig:type5leak_r4table}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type5leak/R4trace.png}
 	\caption{Polecenie traceroute wydane na ruterze R4 po wycieku typu 5}
@@ -122,13 +122,13 @@ Wyciek typu szóstego również został wykonany z użyciem rutera R7. Z powodó
 		redistribute connected
 \end{lstlisting}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type6leak/R3tableSmall.png}
 	\caption{Przykładowy wpis w tablicy rutingu na ruterze R3 po wycieku typu 6}
 	\label{fig:type6leak_r3table}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/type6leak/R5trace.png}
 	\caption{Polecenie traceroute wydane na ruterze R5 po wycieku typu 6}
@@ -151,19 +151,19 @@ Kradzież typu \textit{Exact-Prefix} polega na rozgłoszeniu przez system autono
 	router bgp 65101
 		network 192.168.7.0/24
 \end{lstlisting}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R5traceBefore.png}
 	\caption{Polecenie traceroute wydane na ruterze R5 przed kradzieżą prefiksu}
 	\label{fig:exactHijack_r5traceBefore}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R3tableNoPrepend.png}
 	\caption{Wpis w tablicy rutera R3 po przeprowadzeniu kradzieży prefiksu}
 	\label{fig:exactHijack_r3tableNoPrepend}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R3routeSelection.png}
 	\caption{Wynik procesu decyzyjnego na ruterze R3}
@@ -183,13 +183,13 @@ W celu demonstracji udanego ataku założono, że administrator AS 65102 używa 
 	router bgp 65102
 		neighbor 10.3.7.3 route-map RM-TO-R3-PREPEND out
 \end{lstlisting}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R3tablePrepend.png}
 	\caption{Tablica rutera R3 po udanym ataku exact-prefix hijack}
 	\label{fig:exactHijack_r3tablePrepend}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/exactPrefixHijack/R5traceAfter.png}
 	\caption{Polecenie traceroute wydane na ruterze R5 po udanym ataku exact-prefix hijack}
@@ -210,19 +210,19 @@ W ataku typu \textit{sub-prefix hijack} atakujący rozgłasza prefiks z dłuższ
 	router bgp 65102
 		network 192.168.4.0/25
 \end{lstlisting}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/subPrefixHijack/R6traceBefore.png}
 	\caption{Polecenie traceroute wydane na ruterze R6 przed atakiem \textit{sub-prefix hijackk}}
 	\label{fig:subPrefixHijack_r6traceBefore}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/subPrefixHijack/R6traceAfter.png}
 	\caption{Polecenie traceroute wydane na ruterze R6 po udanym ataku \textit{sub-prefix hijack}}
 	\label{fig:subPrefixHijack_r6traceAfter}
 \end{figure}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/subPrefixHijack/R3tableAfter.png}
 	\caption{Fragment tablicy rutingu rutera R3 po udanym ataku \textit{sub-prefix hijack}}
@@ -234,9 +234,9 @@ Rysunek~\ref{fig:subPrefixHijack_r3table} zawiera wpisy w tablicy rutingu na rut
 \subsection{Forged Origin Exact-Prefix Hijack}
 \label{subsec:forged-origin-hijack}
 
-Ataki typu \textit{forged origin} modyfikują numer AS identyfikujący system autonomiczny, który rozgłosił prefiks. Opisywane naruszenie rutingu polega na nieautoryzowanym rozgłoszeniu cudzego prefiksu bez zmiany długości maski przy jednoczesnym podmienieniu atrybutu \texttt{AS\_PATH} tak, aby podszyć się pod prawdziwego właściciela prefiksu. W badanym scenariuszu ruter R6 rozgłasza trasę do sieci 192.168.4.0/24 oraz wykorzystuje technikę \texttt{path prepending} do doklejenia numeru AS~65201 na początek \texttt{AS\_PATH}. W ten sposób \texttt{NLRI} zawarte w wiadomości \textit{UPDATE} wygląda tak, jakby zostało stworzone przez poprawny system autonomiczny. Konfiguracja rutera R6 użyta do przeprowadzenia ataku zawarta została w listingu~\ref{lst:sForgedOriginPrefixHijackR6config}.
+Ataki typu \textit{forged origin} modyfikują numer AS identyfikujący system autonomiczny, który rozgłosił prefiks. Opisywane naruszenie rutingu polega na nieautoryzowanym rozgłoszeniu cudzego prefiksu bez zmiany długości maski przy jednoczesnym podmienieniu atrybutu \texttt{AS\_PATH} tak, aby podszyć się pod prawdziwego właściciela prefiksu. W badanym scenariuszu ruter R6 rozgłasza trasę do sieci 192.168.4.0/24 oraz wykorzystuje technikę \texttt{path prepending} do doklejenia numeru AS~65201 na początek \texttt{AS\_PATH}. W ten sposób \texttt{NLRI} zawarte w wiadomości \textit{UPDATE} wygląda tak, jakby zostało stworzone przez poprawny system autonomiczny. Konfiguracja rutera R6 użyta do przeprowadzenia ataku zawarta została w listingu~\ref{lst:ForgedOriginPrefixHijackR6config}.
 
-\begin{lstlisting}[caption={Wywołanie ataku \textit{forged origin exact-prefix hijack} na ruterze R6}, label={lst:sForgedOriginPrefixHijackR6config}]
+\begin{lstlisting}[caption={Wywołanie ataku \textit{forged origin exact-prefix hijack} na ruterze R6}, label={lst:ForgedOriginPrefixHijackR6config}]
 	ip route 192.168.4.0/24 Null0
 	
 	ip prefix-list PL-FORGED permit 192.168.4.0/24
@@ -250,7 +250,7 @@ Ataki typu \textit{forged origin} modyfikują numer AS identyfikujący system au
 		network 192.168.4.0/24
 		neighbor 10.3.6.3 route-map RM-FORGED-OUT out
 \end{lstlisting}
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/forgedExactPrefix/R3table.png}
 	\caption{Fragment tablicy rutingu rutera R3 po ataku \textit{forged origin exact-prefix hijack}}
@@ -267,7 +267,7 @@ Rysunek~\ref{fig:forgedOriginPrefixHijack_r3table} ilustruje tablicę rutingu na
 
 Zasada działania ataku tego typu jest identyczna jak w poprzednim przypadku. Różnica między nimi to fakt, że w przypadku ataku \textit{forged origin sub-prefix hijack} rozgłaszany jest prefiks o dłuższej masce niż oryginalny. Konfiguracja użyta do przeprowadzenia ataku jest tożsama z tą użytą wyżej, różni się jedynie rozgłaszaną siecią-- w tym scenariuszu R6 propaguje sieć 192.168.4.0/25. Widoczna na rysunku~\ref{fig:forgedOriginSubPrefixHijack_r3table} tablica rutingu na ruterze R3 pokazuje wpisy po przeprowadzeniu ataku. Mechanizm przechwytywania ruchu wykorzystywany w tym przypadku jest taki sam jak dla \texttt{forged origin hijack} i został opisany w~podrozdziale~\ref{subsec:sub-prefix-hijack}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{screeny/forgedSubPrefix/R3table.png}
 	\caption{Fragment tablicy rutingu rutera R3 po ataku \textit{forged origin sub-prefix hijack}}

@@ -4,6 +4,42 @@
 \section{BGP Roles}
 \label{sec:bgp-roles}
 
+\subsection{Konfiguracja i implementacja}
+\label{sec:bgp-roles-config}
+
+Proces konfiguracji mechanizmu \textit{BGP Roles} opiera się na określeniu lokalnej roli rutera na sesji z sąsiadem BGP, odwzorowując istniejące relacje biznesowe między systemami autonomicznymi. Role wykorzystane w badaniu to:
+\begin{itemize}
+	\item \texttt{provider} -- dla sesji z klientem,
+	\item \texttt{customer} -- dla sesji z dostawcą nadrzędnym,
+	\item \texttt{peer} -- dla sesji z węzłem równorzędnym.
+\end{itemize}
+\begin{lstlisting}[caption={Implementacja mechanizmu \textit{BGP roles} na ruterze R3}, label={lst:BGProlesR3config}]
+	router bgp 65000
+		neighbor 10.1.3.1 local-role customer
+		neighbor 10.2.3.2 local-role peer
+		neighbor 10.3.4.4 local-role peer
+		neighbor 10.3.6.6 local-role provider
+		neighbor 10.3.7.7 local-role provider
+\end{lstlisting}
+
+Polecenia użyte do konfiguracji mechanizmu na ruterze R3 zostały zawarte na listingu~\ref{lst:BGProlesR3config}. Pozostałe rutery w topologii zostały skonfigurowane analogicznie. Po poprawnym zaimplementowaniu \textit{BGP roles} rutery rozgłoszą rolę w wiadomości \texttt{OPEN} i utworzą sesję BGP z sąsiadem w przypadku zgodności ról. Proces wymiany został przedstawiony na rysunku!~\ref{fig:BGProlesOpenR7}. Poprawnie utworzona sesja zawierająca informacje o rolach widnieje na rysunku~\ref{fig:BGProlesR3R7session}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/BGProles/BGPOpenR7toR4.png}
+	\caption{Wiadomość \texttt{OPEN} wysłana z rutera R7}
+	\label{fig:BGProlesOpenR7}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/BGProles/sessionR3R7.png}
+	\caption{Sesja BGP pomiędzy ruterami R3 i R7}
+	\label{fig:BGProlesR3R7session}
+\end{figure}
+
+\subsection{Analiza skuteczności}
+\label{sec:bgp-roles-analysis}
+
+
 BGP Roles
 
 \section{RPKI}

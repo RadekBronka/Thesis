@@ -10,9 +10,17 @@
 \usepackage{caption}
 \usepackage[unicode=true]{hyperref}
 \usepackage[all]{nowidow}
+\usepackage{listings}
+\usepackage{float}
 
 
 \input{listings.tex}
+\lstset{
+	captionpos=b,
+	frame=tb,
+	basicstyle=\ttfamily\small,
+	tabsize=4
+}
 
 \DeclareCaptionFont{smallcap}{\small}
 \captionsetup[figure]{font=smallcap}

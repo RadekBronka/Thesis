@@ -98,6 +98,41 @@ W demonstrowanym wcześniej wycieku tego typu ruter R3 błędnie rozgłosił tra
 
 Proces propagacji tras widoczny jest powyżej. Rysunek~\ref{fig:BGProlesType2R3received} zawiera trasy do sieci 192.168.2.0/24 i 192.168.5.0/24 otrzymane od rutera R2. Rysunek~\ref{fig:BGProlesType2R3showipbgp} pokazuje szczegóły dotyczące tras do sieci 192.168.2.0/24 posiadanych przez ruter R3, gdzie widoczna jest obecność atrybutu OTC otrzymanego od sąsiada R2. Rysunek~\ref{fig:BGProlesType2R3sent} przedstawia trasy, które R3 przekazuje do R4. Brak widocznych tras do sieci 192.168.2.0/24 i 192.168.5.0/24 potwierdza działanie \textit{BGP Roles}.
 
+\subsubsection{Przeciwdziałanie Type 3 leak}
+\label{sec:bgp-roles-analysis-type3leak}
+
+Przedstawiony w podrozdziale \ref{subsec:type-3-leak} wyciek polegał na rozgłoszeniu przez ruter R3 trasy otrzymanej od swojego dostawcy R1 do swoich peerów. W topologii ze skonfigurowanym mechanizmem \textit{BGP Roles} ruter R1, wysyłając trasę do rutera R3, będącego jego klientem, oznaczy ją atrybutem OTC. Struktura wiadomości widoczna jest na rysunku~\ref{fig:BGProlesType3R1update}. Atrybuty trasy w wiadomości \texttt{UPDATE} dotyczącej prefiksu 192.168.1.0/24 potwierdzają obecność elementu \textit{Only To Customer}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/BGProles/Type-3-mitigation/R1update.png}
+	\caption{Wiadomość \texttt{UPDATE} wysłana przez ruter R1 do R3 zawierająca atrybut OTC}
+	\label{fig:BGProlesType3R1update}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/BGProles/Type-3-mitigation/R3received.png}
+	\caption{Trasy otrzymane przez ruter R3 od sąsiada R1}
+	\label{fig:BGProlesType3R3received}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/BGProles/Type-3-mitigation/R3showipbgp.png}
+	\caption{Podgląd tras do sieci 192.168.1.0/24 na ruterze R3}
+	\label{fig:BGProlesType3R3showipbgp}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/BGProles/Type-3-mitigation/R3sent.png}
+	\caption{Trasy wysłane przez ruter R3 do sąsiada R4}
+	\label{fig:BGProlesType3R3sent}
+\end{figure}
+
+Na rysunku \ref{fig:BGProlesType3R3received} widoczne są trasy otrzymane od rutera R1. Ponieważ ruter R3 jest jego klientem, otrzymał on trasy do wszystkich sieci znanych przez węzeł R1, w tym trasę do sieci 192.168.1.0/24, która była przedmiotem wycieku w badanym scenariuszu. Rysunek \ref{fig:BGProlesType3R3showipbgp} obrazuje szczegóły tras do sieci 192.168.1.0/24 na ruterze R3. Przy wpisie otrzymanym od dostawcy R1 widnieje informacja o obecności atrybutu \textit{Only To Customer}. Rysunek \ref{fig:BGProlesType3R3sent} pokazuje wynik decyzji rutera R3 odnośnie tras, które powinien rozgłosić swojemu peerowi R4. Widoczne są tam tylko trasy, które powinny być przez niego rozgłoszone. Dodany atrybut powstrzymał przekazanie trasy do sieci 192.168.1.0/24.
+
+\subsubsection{Przeciwdziałanie Type 4 leak}
+\label{sec:bgp-roles-analysis-type4leak}
+
+Pokazany wyciek typu czwartego powstał w wyniku rozgłoszenia przez R3 trasy otrzymanej od peera R2 do dostawcy R1
 
 \section{RPKI}
 \label{sec:rpki}

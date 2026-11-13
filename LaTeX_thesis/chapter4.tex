@@ -3,8 +3,123 @@
 
 \section{Projekt sieci}
 
-projekt
+
 
 \section{Konfiguracja}
 
-konfiguracja
+Każdy ruter użyty w topologii korzysta z przygotowanego systemu Ubuntu 22.04 LTS. Proces dodawania obrazu przeprowadzony został w konsoli głównej EVE-NG i polegał na pobraniu wymaganych narzędzi i obrazu chmurowego, włączeniu logowania do konta root oraz wstrzyknięciu hasła. Konieczna była też zmiana nazwy obrazu na wymaganą przez EVE-NG nazwę \textit{hda.qcow2}. Ostatnim krokiem było dodanie pamięci do węzłów i naprawa uprawnień w systemie. Cały przebieg został przedstawiony na listingu \ref{lst:imageSetup}.
+\begin{lstlisting}[caption={Przygotowanie obrazu systemu}, label={lst:imageSetup}]
+	apt update && apt install -y libguestfs-tools 
+
+	mkdir -p /opt/unetlab/addons/qemu/linux-ubuntu-bgp 
+	cd /opt/unetlab/addons/qemu/linux-ubuntu-bgp 
+
+	wget https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img 
+
+	virt-customize -a jammy-server-cloudimg-amd64.img --root-password password:eve --run-command "sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config" 
+
+	mv jammy-server-cloudimg-amd64.img hda.qcow2 
+	
+	cd /opt/unetlab/addons/qemu/linux-ubuntu-bgp 
+	qemu-img resize hda.qcow2 +5G 
+	/opt/unetlab/wrappers/unl_wrapper -a fixpermissions 
+	
+\end{lstlisting}
+
+Tak przygotowany system wykorzystano następnie do utworzenia pierwszego węzła, któremu przydzielono 768MB pamięci RAM oraz 1 rdzeń procesora wirtualnego. Po jego uruchomieniu przystąpiono do instalacji oprogramowania \textit{FRRouting}. 
+
+Ze względu na konieczność wdrożenia względnie nowego mechanizmu ASPA, zrezygnowano z instalacji prekompilowanych pakietów na rzecz samodzielnej kompilacji wersji deweloperskiej. W pierwszej kolejności pobrano i zainstalowano niezbędne narzędzia oraz skompilowano bibliotekę RTRlib. Etap ten został przedstawione na listingu \ref{lst:frrDependencies}.
+\begin{lstlisting}[caption={Instalacja zależności oraz biblioteki RTRlib}, label={lst:frrDependencies}]
+	curl -s https://deb.frrouting.org/frr/keys.asc | tee /usr/share/keyrings/frrouting.asc > /dev/null 
+	echo deb [signed-by=/usr/share/keyrings/frrouting.asc] https://deb.frrouting.org/frr $(lsb_release -s -c) frr-stable | tee /etc/apt/sources.list.d/frr.list 
+	
+	apt install -y git autoconf automake libtool make cmake pkg-config \
+	gcc g++ bison flex libc-ares-dev libjson-c-dev libsystemd-dev \
+	libpython3-dev python3-dev python3-pytest python3-sphinx \
+	libcap-dev libelf-dev libreadline-dev libssh-dev \
+	protobuf-c-compiler libprotobuf-c-dev libpcre2-dev libyang2-dev
+	
+	cd /usr/src 
+	git clone https://github.com/rtrlib/rtrlib.git 
+	cd rtrlib 
+	mkdir build && cd build 
+	cmake -DCMAKE_INSTALL_PREFIX=/usr .. 
+	make -j$(nproc) 
+	make install 
+	ldconfig
+\end{lstlisting}
+
+Kolejnym krokiem było utworzenie użytkownika i grup systemowych i pobranie najnowszego kodu źródłowego pakietu FRRouting oraz jego kompilacja. W tym kroku konieczne było przekazanie parametru \texttt{--enable-rpki}. Wykonane polecenia znajdują się na listingu \ref{lst:frrCompile}.
+\begin{lstlisting}[caption={Tworzenie użytkowników i kompilacja FRRouting}, label={lst:frrCompile}]
+	groupadd -r -g 92 frr || true
+	groupadd -r -g 85 frrvty || true
+	adduser --system --ingroup frr --home /var/run/frr/ \
+	--gecos "FRRouting suite" --shell /sbin/nologin frr || true
+	usermod -a -G frrvty frr
+	
+	cd /usr/src
+	git clone https://github.com/FRRouting/frr.git
+	cd frr
+	./bootstrap.sh
+	./configure \
+	--prefix=/usr \
+	--includedir=\${prefix}/include \
+	--bindir=\${prefix}/bin \
+	--sbindir=\${prefix}/lib/frr \
+	--libdir=\${prefix}/lib/frr \
+	--libexecdir=\${prefix}/lib/frr \
+	--sysconfdir=/etc \
+	--localstatedir=/var \
+	--with-moduledir=\${prefix}/lib/frr/modules \
+	--enable-configfile-mask=0640 \
+	--enable-logfile-mask=0640 \
+	--enable-multipath=64 \
+	--enable-user=frr \
+	--enable-group=frr \
+	--enable-vty-group=frrvty \
+	--with-pkg-git-version \
+	--enable-rpki
+	
+	apt install -y texinfo gcc-11-plugin-dev 
+	make -j$(nproc)
+	make install
+	ldconfig
+\end{lstlisting}
+
+Ostatnim krokiem w tworzeniu węzła była konfiguracja systemu przedstawiona na listingu \ref{lst:frrConfig}. Polegała ona na utworzeniu odpowiedniej struktury katalogów na logi oraz skopiowaniu plików konfiguracyjnych demona. W pliku \texttt{daemons} aktywowano proces \texttt{bgpd} z parametrem \texttt{-M rpki}, który jest odpowiedzialny za załadowanie modułu walidacji kryptograficznej podczas startu usługi. Odblokowano także mechanizm przekazywania pakietów IPv4 w jądrze systemu Linux, po czym zarejestrowano i uruchomiono usługę.
+\begin{lstlisting}[caption={Konfiguracja plików oraz usług systemowych}, label={lst:frrConfig}]
+	install -m 775 -o frr -g frr -d /var/log/frr
+	install -m 775 -o frr -g frrvty -d /etc/frr
+	install -m 640 -o frr -g frrvty tools/etc/frr/vtysh.conf /etc/frr/vtysh.conf
+	install -m 640 -o frr -g frr tools/etc/frr/frr.conf /etc/frr/frr.conf
+	install -m 640 -o frr -g frr tools/etc/frr/daemons.conf /etc/frr/daemons.conf
+	install -m 640 -o frr -g frr tools/etc/frr/daemons /etc/frr/daemons
+	install -m 644 tools/frr.service /etc/systemd/system/frr.service
+	
+	sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
+	sed -i 's/^bgpd_options=.*/bgpd_options=" -A 127.0.0.1 -M rpki"/' /etc/frr/daemons
+	
+	sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+	sysctl -p
+	
+	systemctl daemon-reload
+	systemctl enable frr
+	systemctl restart frr
+\end{lstlisting}
+
+Tak skonfigurowany węzeł stanowił bazę dla wszystkich ruterów w topologii. W celu uniknięcia powtarzania procesu instalacji, węzeł został przygotowany do klonowania. Konieczne do tego było wyczyszczenie zawartości pliku \textit{/etc/machine-id}. Wymusza to na systemie wygenerowanie nowego, unikalnego identyfikatora przy pierwszym uruchomieniu każdej sklonowanej maszyny. Po wyczyszczeniu pliku węzeł został wyłączony.
+
+\begin{lstlisting}[caption={Przygotowanie systemu do klonowania}, label={lst:sysprep}]
+	truncate -s 0 /etc/machine-id
+	poweroff
+\end{lstlisting}
+
+Architektura EVE-NG zakłada, że zmiany na uruchomionych węzłach nie są aplikowane bezpośrednio do głównego onrazu, lecz są zapisywane w plikach tymczasowych wewnątrz katalogu powiązanego z danym laboratorium. Aby utrwalić konfigurację bazową stanowiącą wzorzec dla reszty węzłów, z poziomu konsoli serwera EVE-NG wykonano operację \texttt{comit}. Polecenie to przenosi dane z tymczasowego dysku węzła do oryginalnego pliku obrazu.
+
+\begin{lstlisting}[caption={Utrwalenie obrazu bazowego w EVE-NG}, label={lst:imageCommit}]
+	cd /opt/unetlab/tmp/0/<lab-id>/<node-id>
+	qemu-img commit hda.qcow2
+	/opt/unetlab/wrappers/unl_wrapper -a fixpermissions 
+\end{lstlisting}
+
+Powyższe kroki pozwoliły na powielanie węzła. Proces klonowania kolejnych ruterów został przeprowadzony bezpośrednio z poziomu interfejsu graficznego środowiska EVE-NG.

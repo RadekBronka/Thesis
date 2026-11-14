@@ -1,11 +1,6 @@
-\chapter{Implementacja topologii}
+\chapter{Budowa środowiska}
 \label{chapter-4}
-
-\section{Projekt sieci}
-
-
-
-\section{Konfiguracja}
+\section{Przygotowanie węzłów}
 
 Każdy ruter użyty w topologii korzysta z przygotowanego systemu Ubuntu 22.04 LTS. Proces dodawania obrazu przeprowadzony został w konsoli głównej EVE-NG i polegał na pobraniu wymaganych narzędzi i obrazu chmurowego, włączeniu logowania do konta root oraz wstrzyknięciu hasła. Konieczna była też zmiana nazwy obrazu na wymaganą przez EVE-NG nazwę \textit{hda.qcow2}. Ostatnim krokiem było dodanie pamięci do węzłów i naprawa uprawnień w systemie. Cały przebieg został przedstawiony na listingu \ref{lst:imageSetup}.
 \begin{lstlisting}[caption={Przygotowanie obrazu systemu}, label={lst:imageSetup}]
@@ -114,7 +109,7 @@ Tak skonfigurowany węzeł stanowił bazę dla wszystkich ruterów w topologii. 
 	poweroff
 \end{lstlisting}
 
-Architektura EVE-NG zakłada, że zmiany na uruchomionych węzłach nie są aplikowane bezpośrednio do głównego onrazu, lecz są zapisywane w plikach tymczasowych wewnątrz katalogu powiązanego z danym laboratorium. Aby utrwalić konfigurację bazową stanowiącą wzorzec dla reszty węzłów, z poziomu konsoli serwera EVE-NG wykonano operację \texttt{comit}. Polecenie to przenosi dane z tymczasowego dysku węzła do oryginalnego pliku obrazu.
+Architektura EVE-NG zakłada, że zmiany na uruchomionych węzłach nie są aplikowane bezpośrednio do głównego obrazu, lecz są zapisywane w plikach tymczasowych wewnątrz katalogu powiązanego z danym laboratorium. Aby zapisać konfigurację będącą wzorcem dla reszty węzłów, z poziomu konsoli serwera EVE-NG wykonano operację \texttt{comit}. Polecenie to przenosi dane z tymczasowego dysku węzła do oryginalnego pliku obrazu.
 
 \begin{lstlisting}[caption={Utrwalenie obrazu bazowego w EVE-NG}, label={lst:imageCommit}]
 	cd /opt/unetlab/tmp/0/<lab-id>/<node-id>
@@ -123,3 +118,79 @@ Architektura EVE-NG zakłada, że zmiany na uruchomionych węzłach nie są apli
 \end{lstlisting}
 
 Powyższe kroki pozwoliły na powielanie węzła. Proces klonowania kolejnych ruterów został przeprowadzony bezpośrednio z poziomu interfejsu graficznego środowiska EVE-NG.
+
+\section{Budowa topologii i konfiguracja ruterów}
+
+Sieć zbudowana w celach badawczych stanowi uproszczone odwzorowanie realistycznych relacji biznesowych pomiędzy systemami autonomicznymi. Konfiguracja oparta została na regułach zawartych w artykule~\cite{GaoRexford2001}, opisanych szczegółowo w~rozdziale~\ref{chapter-2}. Środowisko testowe składa się z siedmiu ruterów, należących do trzech warstw hierarchicznych:
+\begin{itemize}
+	\item Dostawca nadrzędny (\textit{Tier-1}) -- Ruter R1 (AS 64501). Pełni rolę operatora nadrzędnego udostępniającego globalny tranzyt.
+	\item Dostawcy usług (\textit{Tier-2}) -- Rutery R2 (AS 65200), R3 (AS 65000) oraz R4 (AS 65201). Są klientami względem R1 i świadczą usługi tranzytowe na rzecz ruterów trzeciej warstwy. Jednocześnie R2 i R3 oraz R3 i R4 są połączone ze sobą równorzędną sesją typu \textit{peer}.
+	\item Klienci końcowi (\textit{Tier-3}) -- Rutery R5 (AS 65100), R6 (AS 65101) oraz R7 (AS 65102). Stanowią najniższą warstwę i wykupują usługi dostawców, nie świadcząc samemu usług tranzytu innym węzłom.
+\end{itemize}
+
+Każdy z ruterów posiada wewnętrzną sieć rozgłaszaną w BGP, adresowaną jako \texttt{192.168.X.0/24}, gdzie X odpowiada numerowi rutera, przypisaną do interfejsu \texttt{loopback0}. Adresacja między węzłami została zrealizowana z użyciem sieci \texttt{10.X.Y.Z/24}, gdzie X i Y to numery ruterów po obu stronach łącza, przy czym X jest numerem mniejszym, a Z stanowi numer rutera, na którym skonfigurowany jest adres. Dla przykładu interfejsy łączące R3 i R7 posiadają adresację \texttt{10.3.7.3/24} na R3 oraz \texttt{10.3.7.7/24} na R7. Zbudowana sieć widoczna jest na rysunku~\ref{fig:BaselineTopology}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{screeny/Baseline/topologia.png}
+	\caption{Schemat topologii}
+	\label{fig:BaselineTopology}
+\end{figure}
+
+Implementacja polityk filtrowania tras opierała się na wykorzystaniu \textit{route-map} i \textit{prefix-list}. Biorąc pod uwagę zasady \textit{Valley-free}, politykę rutingu dla każdego rutera skonfigurowano następująco:
+\begin{itemize}
+	\item Trasy od klienta są rozgłaszane do wszystkich sąsiadów i posiadają najwyższy priorytet osiągnięty poprzez nadanie im \texttt{Local Preference} równego 200.
+	\item Trasy od peera są rozgłaszane jedynie do klientów i posiadają niższy priorytet niż trasy otrzymane od klientów. Ich \texttt{Local Preference} wynosi 150.
+	\item Trasy od dostawcy są rozgłaszane jedynie do klientów i mają najniższy \texttt{Local Preference} wynoszący 100.
+	\item Trasy do własnych sieci są rozgłaszane wszędzie.
+\end{itemize}
+
+Przykładowa konfiguracja bazowa dla jednego z ruterów została przedstawiona na listingu~\ref{lst:baselineR3config}. Pozostałe rutery zostały skonfigurowane w sposób analogiczny, z zachowaniem powyższych reguł.
+
+\begin{lstlisting}[caption={Konfiguracja rutera R3}, label={lst:baselineR3config}]
+	hostname R3
+	interface lo
+		ip address 192.168.3.1/24
+	
+	route-map RM-FROM-CUSTOMER permit 10
+		set local-preference 200
+	route-map RM-FROM-PEER permit 10
+		set local-preference 150
+	route-map RM-FROM-PROVIDER permit 10
+		set local-preference 100
+	
+	ip prefix-list PL-EXPORT permit 192.168.3.0/24
+	ip prefix-list PL-EXPORT permit 192.168.6.0/24
+	ip prefix-list PL-EXPORT permit 192.168.7.0/24
+	
+	route-map RM-EXPORT permit 10
+		match ip address prefix-list PL-EXPORT
+	
+	router bgp 65000
+		bgp router-id 192.168.3.1
+		no bgp ebgp-requires-policy
+		network 192.168.3.0/24
+		neighbor 10.2.3.2 remote-as 65200
+		neighbor 10.2.3.2 description PEER_R2_via_ens3
+		neighbor 10.2.3.2 route-map RM-FROM-PEER in
+		
+		neighbor 10.1.3.1 remote-as 64501
+		neighbor 10.1.3.1 description UPSTREAM_R1_via_ens4
+		neighbor 10.1.3.1 route-map RM-FROM-PROVIDER in
+	
+		neighbor 10.3.4.4 remote-as 65201
+		neighbor 10.3.4.4 description PEER_R4_via_ens5
+		neighbor 10.3.4.4 route-map RM-FROM-PEER in
+	
+		neighbor 10.3.7.7 remote-as 65102
+		neighbor 10.3.7.7 description CUSTOMER_R7_via_ens6
+		neighbor 10.3.7.7 route-map RM-FROM-CUSTOMER in
+	
+		neighbor 10.3.6.6 remote-as 65101
+		neighbor 10.3.6.6 description CUSTOMER_R6_via_ens7
+		neighbor 10.3.6.6 route-map RM-FROM-CUSTOMER in
+	
+		neighbor 10.1.3.1 route-map RM-EXPORT out
+		neighbor 10.2.3.2 route-map RM-EXPORT out
+		
+		neighbor 10.3.4.4 route-map RM-EXPORT out
+\end{lstlisting}
